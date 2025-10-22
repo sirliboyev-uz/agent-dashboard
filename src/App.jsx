@@ -14,6 +14,7 @@ import LogsPanel from './components/logs/LogsPanel';
 import SettingsPanel from './components/dashboard/SettingsPanel';
 import MarketplacePanel from './components/dashboard/MarketplacePanel';
 import ShareModal from './components/agents/ShareModal';
+import ChatPage from './components/chat/ChatPage';
 
 // Services
 import storageService from './services/storageService';
@@ -241,6 +242,9 @@ export default function App() {
             </div>
           </div>
         );
+
+      case 'chat':
+        return <ChatPage agents={agents} />;
 
       case 'agents':
         return (

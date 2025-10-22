@@ -32,9 +32,10 @@ class AIService {
    * Execute an agent with given prompt
    * @param {Object} agent - Agent configuration
    * @param {string} userPrompt - User's input prompt
+   * @param {Array} conversationContext - Previous messages for context (optional)
    * @returns {Promise<Object>} Execution result with response and metadata
    */
-  async executeAgent(agent, userPrompt = 'Process this task') {
+  async executeAgent(agent, userPrompt = 'Process this task', conversationContext = []) {
     // Reload settings before each execution
     this.loadSettings();
 
@@ -44,7 +45,7 @@ class AIService {
       let result;
 
       if (this.useRealAPI && this._hasValidAPIKey(agent.model)) {
-        result = await this._executeRealAPI(agent, userPrompt);
+        result = await this._executeRealAPI(agent, userPrompt, conversationContext);
       } else {
         result = await this._executeSimulated(agent, userPrompt);
       }
@@ -94,6 +95,85 @@ class AIService {
   }
 
   /**
+   * Execute agent with streaming response simulation
+   * @param {Object} agent - Agent configuration
+   * @param {string} userPrompt - User's input prompt
+   * @param {Array} conversationContext - Previous messages for context (optional)
+   * @param {Function} onChunk - Callback for each chunk of response
+   * @returns {Promise<Object>} Execution result
+   */
+  async executeAgentStreaming(agent, userPrompt, conversationContext = [], onChunk) {
+    this.loadSettings();
+
+    const startTime = Date.now();
+
+    try {
+      let result;
+
+      if (this.useRealAPI && this._hasValidAPIKey(agent.model)) {
+        result = await this._executeRealAPI(agent, userPrompt, conversationContext);
+        // Simulate streaming by chunking the response
+        await this._simulateStreaming(result.content, onChunk);
+      } else {
+        result = await this._executeSimulatedStreaming(agent, userPrompt, onChunk);
+      }
+
+      const duration = Date.now() - startTime;
+      const tokensUsed = result.tokensUsed;
+      const cost = this._calculateCost(agent.model, tokensUsed);
+
+      return {
+        content: result.content,
+        tokensUsed,
+        cost,
+        duration,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Simulate streaming response
+   */
+  async _executeSimulatedStreaming(agent, userPrompt, onChunk) {
+    // Get response template
+    const templates = this._getResponseTemplate(agent.name);
+    const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+
+    // Simulate streaming by sending chunks
+    await this._simulateStreaming(randomTemplate, onChunk);
+
+    const tokensUsed = Math.floor(randomTemplate.length / 4) + Math.floor(Math.random() * 500 + 200);
+
+    return {
+      content: randomTemplate,
+      tokensUsed,
+    };
+  }
+
+  /**
+   * Simulate streaming by chunking text and sending with delays
+   */
+  async _simulateStreaming(text, onChunk) {
+    const words = text.split(' ');
+    const chunkSize = Math.max(1, Math.floor(words.length / 20)); // ~20 chunks
+    let currentText = '';
+
+    for (let i = 0; i < words.length; i += chunkSize) {
+      const chunk = words.slice(i, i + chunkSize).join(' ') + ' ';
+      currentText += chunk;
+      onChunk(currentText);
+
+      // Random delay between chunks (30-100ms)
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 70 + 30));
+    }
+
+    // Ensure final text is sent
+    onChunk(text);
+  }
+
+  /**
    * Simulate AI execution with realistic delay and response
    */
   async _executeSimulated(agent, userPrompt) {
@@ -117,7 +197,7 @@ class AIService {
   /**
    * Execute real API call (OpenAI or Anthropic)
    */
-  async _executeRealAPI(agent, userPrompt) {
+  async _executeRealAPI(agent, userPrompt, conversationContext = []) {
     const modelInfo = AI_MODELS.find(m => m.id === agent.model);
 
     if (!modelInfo) {
@@ -125,18 +205,31 @@ class AIService {
     }
 
     if (modelInfo.provider === 'OpenAI') {
-      return await this._callOpenAI(agent, userPrompt);
+      return await this._callOpenAI(agent, userPrompt, conversationContext);
     } else if (modelInfo.provider === 'Anthropic') {
-      return await this._callAnthropic(agent, userPrompt);
+      return await this._callAnthropic(agent, userPrompt, conversationContext);
     }
 
     throw new Error('Unsupported AI provider');
   }
 
   /**
-   * Call OpenAI API
+   * Call OpenAI API with conversation context
    */
-  async _callOpenAI(agent, userPrompt) {
+  async _callOpenAI(agent, userPrompt, conversationContext = []) {
+    // Build messages array with system, context, and new user message
+    const messages = [
+      {
+        role: 'system',
+        content: agent.promptTemplate,
+      },
+      ...conversationContext,
+      {
+        role: 'user',
+        content: userPrompt,
+      },
+    ];
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -145,16 +238,7 @@ class AIService {
       },
       body: JSON.stringify({
         model: agent.model,
-        messages: [
-          {
-            role: 'system',
-            content: agent.promptTemplate,
-          },
-          {
-            role: 'user',
-            content: userPrompt,
-          },
-        ],
+        messages,
         temperature: agent.temperature,
       }),
     });
@@ -172,9 +256,18 @@ class AIService {
   }
 
   /**
-   * Call Anthropic Claude API
+   * Call Anthropic Claude API with conversation context
    */
-  async _callAnthropic(agent, userPrompt) {
+  async _callAnthropic(agent, userPrompt, conversationContext = []) {
+    // Build messages array with context and new user message
+    const messages = [
+      ...conversationContext,
+      {
+        role: 'user',
+        content: userPrompt,
+      },
+    ];
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -187,12 +280,7 @@ class AIService {
         max_tokens: 1024,
         temperature: agent.temperature,
         system: agent.promptTemplate,
-        messages: [
-          {
-            role: 'user',
-            content: userPrompt,
-          },
-        ],
+        messages,
       }),
     });
 
