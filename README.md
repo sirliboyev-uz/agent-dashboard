@@ -4,6 +4,20 @@ A modern web application for AI agent management, configuration, and execution. 
 
 ![AI Agent Dashboard](https://img.shields.io/badge/React-18-blue) ![Vite](https://img.shields.io/badge/Vite-5-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-cyan)
 
+## Demo
+
+Watch the full feature demonstration:
+
+[📹 View Demo Video](./demo.mp4)
+
+The demo showcases:
+- Creating and managing AI agents
+- Starting conversations with real-time streaming responses
+- Multi-turn conversations with context awareness
+- Agent marketplace and sharing features
+- Dashboard analytics and metrics
+- Export and data management
+
 ## Features
 
 ### Conversation & Chat
