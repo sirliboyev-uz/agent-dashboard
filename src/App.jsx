@@ -12,11 +12,14 @@ import RunAgentModal from './components/agents/RunAgentModal';
 import ResultModal from './components/agents/ResultModal';
 import LogsPanel from './components/logs/LogsPanel';
 import SettingsPanel from './components/dashboard/SettingsPanel';
+import MarketplacePanel from './components/dashboard/MarketplacePanel';
+import ShareModal from './components/agents/ShareModal';
 
 // Services
 import storageService from './services/storageService';
 import aiService from './services/aiService';
 import metricsService from './services/metricsService';
+import shareService from './services/shareService';
 
 // Utils
 import { sampleAgents, getDefaultAgent } from './utils/sampleAgents';
@@ -32,6 +35,7 @@ export default function App() {
   // New modals for run flow
   const [runAgentModal, setRunAgentModal] = useState({ isOpen: false, agent: null });
   const [resultModal, setResultModal] = useState({ isOpen: false, result: null });
+  const [shareModal, setShareModal] = useState({ isOpen: false, agent: null });
 
   // Initialize data from localStorage or use sample data
   useEffect(() => {
@@ -100,6 +104,27 @@ export default function App() {
       setAgents(updatedAgents);
       storageService.saveAgents(updatedAgents);
     }
+  };
+
+  // Handle Share Agent
+  const handleShareAgent = (agent) => {
+    setShareModal({ isOpen: true, agent });
+  };
+
+  // Handle Import Agent from Marketplace
+  const handleImportAgent = (agentData) => {
+    const newAgent = {
+      ...getDefaultAgent(),
+      ...agentData,
+      id: uuidv4(),
+      createdAt: Date.now(),
+    };
+    const updatedAgents = [...agents, newAgent];
+    setAgents(updatedAgents);
+    storageService.saveAgents(updatedAgents);
+
+    // Switch to agents tab to show imported agent
+    setActiveTab('agents');
   };
 
   // Handle Open Run Modal
@@ -211,6 +236,7 @@ export default function App() {
                   setIsModalOpen(true);
                 }}
                 onDelete={handleDeleteAgent}
+                onShare={handleShareAgent}
               />
             </div>
           </div>
@@ -226,8 +252,12 @@ export default function App() {
               setIsModalOpen(true);
             }}
             onDelete={handleDeleteAgent}
+            onShare={handleShareAgent}
           />
         );
+
+      case 'marketplace':
+        return <MarketplacePanel onImportAgent={handleImportAgent} />;
 
       case 'logs':
         return <LogsPanel logs={logs} />;
@@ -293,6 +323,13 @@ export default function App() {
         isOpen={resultModal.isOpen}
         onClose={() => setResultModal({ isOpen: false, result: null })}
         result={resultModal.result}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={shareModal.isOpen}
+        onClose={() => setShareModal({ isOpen: false, agent: null })}
+        agent={shareModal.agent}
       />
     </div>
   );

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Play, Edit, Trash2, Activity, DollarSign, CheckCircle } from 'lucide-react';
+import { Play, Edit, Trash2, Activity, DollarSign, CheckCircle, Share2 } from 'lucide-react';
 import Button from '../common/Button';
 import { AI_MODELS } from '../../utils/constants';
 
-export default function AgentCard({ agent, onRun, onEdit, onDelete }) {
+export default function AgentCard({ agent, onRun, onEdit, onDelete, onShare }) {
   const modelInfo = AI_MODELS.find(m => m.id === agent.model);
   const modelName = modelInfo ? modelInfo.name : agent.model;
 
@@ -28,6 +28,13 @@ export default function AgentCard({ agent, onRun, onEdit, onDelete }) {
         </div>
 
         <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => onShare(agent)}
+            className="p-2 text-slate-400 hover:text-green-500 hover:bg-slate-700 rounded-lg transition-colors"
+            title="Share agent"
+          >
+            <Share2 size={16} />
+          </button>
           <button
             onClick={() => onEdit(agent)}
             className="p-2 text-slate-400 hover:text-blue-500 hover:bg-slate-700 rounded-lg transition-colors"

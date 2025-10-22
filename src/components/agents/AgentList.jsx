@@ -2,7 +2,7 @@ import React from 'react';
 import AgentCard from './AgentCard';
 import { Bot } from 'lucide-react';
 
-export default function AgentList({ agents, onRun, onEdit, onDelete }) {
+export default function AgentList({ agents, onRun, onEdit, onDelete, onShare }) {
   if (agents.length === 0) {
     return (
       <div className="card">
@@ -27,6 +27,7 @@ export default function AgentList({ agents, onRun, onEdit, onDelete }) {
           onRun={onRun}
           onEdit={onEdit}
           onDelete={onDelete}
+          onShare={onShare}
         />
       ))}
     </div>

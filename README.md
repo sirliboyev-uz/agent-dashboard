@@ -1,6 +1,6 @@
 # AI Agent Dashboard
 
-A modern, portfolio-ready web application demonstrating AI agent management, configuration, and execution. Built with React, Vite, and TailwindCSS.
+A modern web application for AI agent management, configuration, and execution. Built with React, Vite, and TailwindCSS.
 
 ![AI Agent Dashboard](https://img.shields.io/badge/React-18-blue) ![Vite](https://img.shields.io/badge/Vite-5-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-cyan)
 
@@ -256,7 +256,7 @@ Potential enhancements for future versions:
 
 ## License
 
-MIT License - Free to use for portfolio and learning purposes.
+MIT License - Free to use for personal and commercial projects.
 
 ## Credits
 
@@ -266,7 +266,3 @@ Built with:
 - [TailwindCSS](https://tailwindcss.com/)
 - [Recharts](https://recharts.org/)
 - [Lucide Icons](https://lucide.dev/)
-
----
-
-**Portfolio Demo** - This project showcases full-stack design thinking, UI/UX skills, and modern React development practices. Not intended for production use without additional security and error handling.

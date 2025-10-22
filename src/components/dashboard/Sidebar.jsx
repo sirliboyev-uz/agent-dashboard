@@ -1,10 +1,11 @@
 import React from 'react';
-import { LayoutDashboard, Bot, FileText, Settings, Download, Upload } from 'lucide-react';
+import { LayoutDashboard, Bot, FileText, Settings, Download, Upload, Store } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onTabChange, onExport, onImport }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'agents', label: 'Agents', icon: Bot },
+    { id: 'marketplace', label: 'Marketplace', icon: Store },
     { id: 'logs', label: 'Logs', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
