@@ -6,12 +6,22 @@ A modern web application for AI agent management, configuration, and execution. 
 
 ## Features
 
-### Core Functionality
-- **Agent Management**: Create, edit, and delete AI agents with custom configurations
+### Conversation & Chat
+- **Multi-Turn Conversations**: Chat with agents using persistent conversation history
+- **Real-Time Streaming**: Watch responses generate in real-time with streaming simulation
+- **Conversation Management**: Create, search, rename, and delete conversations
+- **Context Awareness**: Agents remember previous messages for coherent multi-turn discussions
+- **Smart Organization**: Conversations grouped by date (Today, Yesterday, Last 7 Days, Older)
+- **Export Conversations**: Download chat history as Markdown or JSON
+- **Token & Cost Tracking**: Per-message and per-conversation usage statistics
+
+### Agent Management
+- **Create & Configure**: Build custom AI agents with specific roles and behaviors
 - **Model Selection**: Support for GPT-4, GPT-3.5 Turbo, Claude 3 Opus, and Claude 3 Sonnet
 - **Agent Execution**: Run individual agents or execute all agents sequentially
-- **Simulated AI Responses**: Realistic mock responses with random delays (1-3s)
-- **Optional Real API Integration**: Connect to OpenAI or Anthropic APIs via environment variables
+- **Agent Marketplace**: Browse and import 10 curated community agent templates
+- **Agent Sharing**: Share agents via shareable codes or URLs
+- **Simulated & Real APIs**: Toggle between simulation mode and real OpenAI/Anthropic APIs
 
 ### Dashboard & Analytics
 - **Metrics Cards**: Real-time stats for total runs, success rate, cost, and performance
@@ -21,10 +31,10 @@ A modern web application for AI agent management, configuration, and execution. 
 
 ### User Experience
 - **Dark Theme**: Professional slate-based dark mode design
-- **Responsive Layout**: Mobile-friendly with collapsible sidebar
-- **Loading Animations**: Smooth loading states during agent execution
+- **Responsive Layout**: Mobile-friendly interface with sidebar navigation
+- **Real-Time Feedback**: Loading animations and streaming responses
 - **Form Validation**: Real-time validation for agent creation/editing
-- **Export/Import**: JSON-based data backup and migration
+- **Data Portability**: Export/import conversations, agents, and logs
 
 ### Sample Agents Included
 1. **Email Summarizer** - Analyzes emails and extracts key points
@@ -80,6 +90,21 @@ A modern web application for AI agent management, configuration, and execution. 
 
 ## Usage
 
+### Starting a Conversation
+
+1. Navigate to the **Chat** tab in the sidebar
+2. Click **"New Conversation"** button
+3. Select an agent from the modal
+4. Type your message and press **Enter** (Shift+Enter for new line)
+5. Watch the response stream in real-time
+6. Continue the conversation - the agent remembers context
+
+**Chat Features:**
+- Edit conversation title by clicking the edit icon
+- Export conversation as Markdown or JSON
+- Search conversations in the sidebar
+- Delete conversations with confirmation
+
 ### Creating an Agent
 
 1. Click **"Create Agent"** in the top bar
@@ -91,17 +116,27 @@ A modern web application for AI agent management, configuration, and execution. 
    - **Prompt Template**: Define agent behavior and role
 3. Click **"Create Agent"**
 
-### Running Agents
+### Using the Marketplace
+
+1. Navigate to the **Marketplace** tab
+2. Browse 10 curated community agent templates
+3. Use search or category filters to find agents
+4. Click **"Import Agent"** to add to your collection
+5. Share your own agents using the Share button on agent cards
+
+### Running Agents (One-Off)
 
 - **Single Agent**: Click "Run Agent" button on any agent card
-- **All Agents**: Click "Run All Agents" in the top bar
-- **View Results**: Check the Logs tab for detailed execution data
+- **Provide Input**: Enter your prompt in the modal
+- **View Results**: See the response in the result modal
+- **Check Logs**: View detailed execution data in the Logs tab
 
 ### Managing Data
 
-- **Export**: Click "Export Data" in sidebar to download JSON backup
-- **Import**: Click "Import Data" to restore from JSON file
-- **Clear**: All data is stored in localStorage (clear browser data to reset)
+- **Export Conversations**: Click download icon in chat header
+- **Export All Data**: Click "Export Data" in sidebar for full backup
+- **Import Data**: Click "Import Data" to restore from JSON file
+- **Share Agents**: Use share codes to exchange agent configurations
 
 ## Project Structure
 
@@ -109,33 +144,46 @@ A modern web application for AI agent management, configuration, and execution. 
 agent-dashboard/
 ├── src/
 │   ├── components/
-│   │   ├── dashboard/        # Layout and dashboard components
+│   │   ├── dashboard/           # Layout and dashboard components
 │   │   │   ├── Sidebar.jsx
 │   │   │   ├── TopBar.jsx
 │   │   │   ├── MetricsCards.jsx
-│   │   │   └── RunChart.jsx
-│   │   ├── agents/           # Agent management components
+│   │   │   ├── RunChart.jsx
+│   │   │   ├── SettingsPanel.jsx
+│   │   │   └── MarketplacePanel.jsx
+│   │   ├── agents/              # Agent management components
 │   │   │   ├── AgentCard.jsx
 │   │   │   ├── AgentList.jsx
-│   │   │   └── AgentModal.jsx
-│   │   ├── logs/             # Logging components
+│   │   │   ├── AgentModal.jsx
+│   │   │   ├── RunAgentModal.jsx
+│   │   │   ├── ResultModal.jsx
+│   │   │   └── ShareModal.jsx
+│   │   ├── chat/                # Conversation components
+│   │   │   ├── ChatInterface.jsx
+│   │   │   ├── ChatPage.jsx
+│   │   │   ├── ConversationHistory.jsx
+│   │   │   └── SelectAgentModal.jsx
+│   │   ├── logs/                # Logging components
 │   │   │   ├── LogEntry.jsx
 │   │   │   └── LogsPanel.jsx
-│   │   └── common/           # Reusable components
+│   │   └── common/              # Reusable components
 │   │       ├── Button.jsx
 │   │       └── LoadingAnimation.jsx
-│   ├── services/             # Business logic
-│   │   ├── aiService.js      # AI execution (mock + real API)
-│   │   ├── storageService.js # localStorage wrapper
-│   │   └── metricsService.js # Analytics calculations
-│   ├── utils/                # Constants and helpers
+│   ├── services/                # Business logic
+│   │   ├── aiService.js         # AI execution with streaming
+│   │   ├── storageService.js    # localStorage wrapper
+│   │   ├── metricsService.js    # Analytics calculations
+│   │   ├── conversationService.js # Conversation management
+│   │   └── shareService.js      # Agent sharing/encoding
+│   ├── utils/                   # Constants and helpers
 │   │   ├── constants.js
-│   │   └── sampleAgents.js
-│   ├── App.jsx               # Main application component
-│   ├── main.jsx              # React entry point
-│   └── index.css             # TailwindCSS + custom styles
-├── public/                   # Static assets
-├── .env.example              # Environment variables template
+│   │   ├── sampleAgents.js
+│   │   └── marketplaceAgents.js
+│   ├── App.jsx                  # Main application component
+│   ├── main.jsx                 # React entry point
+│   └── index.css                # TailwindCSS + custom styles
+├── public/                      # Static assets
+├── .env.example                 # Environment variables template
 ├── package.json
 ├── vite.config.js
 ├── tailwind.config.js
@@ -160,14 +208,23 @@ Models are configured in `src/utils/constants.js`:
 Data is persisted in localStorage:
 - `ai_dashboard_agents`: Agent configurations
 - `ai_dashboard_logs`: Execution logs (max 100 entries)
+- `ai_dashboard_conversations`: Chat conversations (max 50)
+- `ai_dashboard_settings`: API keys and settings
+
+### Conversation Limits
+- **Max Conversations**: 50 (oldest auto-deleted)
+- **Max Context Messages**: 20 (last messages sent to API)
+- **Auto-Title**: Generated from first user message (50 chars max)
 
 ## Simulated AI Behavior
 
 In simulation mode (default), the dashboard:
 - Generates realistic delays (1-3 seconds)
+- Simulates streaming responses with ~20 chunks
 - Returns contextual responses based on agent name
 - Calculates token usage based on response length
 - Simulates costs using model pricing
+- Maintains conversation context for multi-turn chats
 
 ## Real API Integration
 
